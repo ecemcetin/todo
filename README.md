@@ -1,4 +1,4 @@
-# jira
+# todo app
 
 ## Project setup
 ```
