@@ -1,18 +1,59 @@
 <template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <FilterTask :current="current" @filterChange="changeFilter"/>
+  <div v-if="tasks.length">
+     <div v-for="task in filteredTasks" :key="task.id">
+        <SingleTask :task="task" @delete="handleDelete" @complete="handleComplete"/>
+     </div>
   </div>
-</template>
-
-<script>
-// @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
-
-export default {
-  name: 'HomeView',
-  components: {
-    HelloWorld
-  }
-}
-</script>
+ </template>
+ 
+ <script>
+ import SingleTask from '../components/SingleTask.vue'
+ import FilterTask from '../components/FilterTask.vue'
+ 
+ 
+ export default {
+   name: 'HomeView',
+   components: {    
+     SingleTask,
+     FilterTask
+   },
+   data() {
+     return {
+       tasks:[],
+       current:'all'
+     }
+   },
+   mounted() {
+     fetch('http://localhost:3000/tasks').then(res=>res.json()).then(data=>this.tasks=data).catch(err =>console.log(err.message))
+   },
+   methods:{
+    changeFilter(filterValue){
+      this.current=filterValue
+    },
+      handleDelete(id){
+     this.tasks= this.tasks.filter(task=>{
+       return task.id !== id
+      })
+     },
+     handleComplete(id){
+       let myTask=this.tasks.find(task=>{
+         return task.id === id
+       })
+       myTask.complete = !myTask.complete
+     }
+   },
+   computed:{
+    filteredTasks(){
+      if(this.current === 'done'){
+        return this.tasks.filter(task => task.complete)
+      }
+       if(this.current === 'inprogress'){
+        return this.tasks.filter(task => !task.complete)
+      }
+      return this.tasks
+    }
+   }
+ }
+ </script>
+ 
